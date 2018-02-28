@@ -20,7 +20,7 @@
     
     <!-- 外部组件,作为子组件,与Crud组件的关系是父子组件关系, modifylist用kebab-case(短横线分隔式命名),因为
     HTML 特性是不区分大小写的。所以，当使用的不是字符串模板时，camelCase (驼峰式命名) 的 prop 需要转换为相对应的 kebab-case (短横线分隔式命名)： -->
-    <crud class="just-try-something-and-press-f12" data-would-be-add-to-root-component-attr="true" v-bind:modify-list="selectedList" v-bind:is-active="isActive" v-on:edit="editOne" v-on:cancel="foobar = arguments[0];isActive=!isActive" v-cloak></crud>
+      <crud class="just-try-something-and-press-f12" data-would-be-add-to-root-component-attr="true" v-bind:modify-list="selectedList" v-bind:is-active="isActive" v-on:edit="editOne" v-on:cancel="foobar = arguments[0];isActive=!isActive" v-cloak></crud>
     <!-- class="just-try-something-and-press-f12" data-would-be-add-to-root-component-attr="true"
     这两段话是为了验证组件标签上编写的的非prop特性会被添加到组件到组件的根元素上去, 和表单无关.
     foobar = arguments[0] 是为了验证子组件通过$emit与父组件通信时接受参数的形式, 尝试直接把$on监听到的数据直接赋值给父组件的model, 打开F12 vue devtool可以看到能成功-->
@@ -80,18 +80,22 @@ export default {
       this.toggleEdit();
     },
     editOne(student) {
-      var dupe = 0;
-      // 判断编辑行的username是否重复, 如果重复则覆盖, 通过dupe自增, 如果没有重复, 则students的元素个数会等于dupe, 那么再判断结果来是否进行增加一条数据.
-      this.students.forEach((element, index) => {
-        if (student.username == element.username) {
-          this.students[index] = student;
-        } else {
-          dupe++;
-        }
+      var isduplicated;
+      // 为了简单, 添加和编辑都是用这个方法, 判断保存的username是否重复, 如果重复则覆盖, 不重复则新建一行,通过isduplicated如果为true来判断.
+      isduplicated = this.students.some(aStudent => {
+        return aStudent.username === student.username;
       });
-      if (dupe === this.students.length) {
+      console.log(isduplicated);
+      if (isduplicated) {
+        this.students.forEach((element, index) => {
+          if (student.username == element.username) {
+            this.students[index] = student;
+          }
+        });
+      } else {
         this.students.push(student);
       }
+
       this.toggleEdit();
     },
     cancleOne() {
